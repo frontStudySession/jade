@@ -48,14 +48,17 @@ const Form = styled.form`
   gap: 20px;
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ $error?: boolean }>`
   display: block;
   box-sizing: border-box;
   width: 100%;
   border-radius: 4px;
-  border: 1px solid white;
   padding: 10px 15px;
   font-size: 14px;
+
+  border: ${(props) =>
+    props.$error ? "1px solid rgb(191, 22, 80)" : "1px solid white"};
+  border-left: ${(props) => props.$error && "10px solid rgb(236, 89, 144)"};
 
   &[type="submit"] {
     background: #ec5990;
@@ -114,7 +117,8 @@ export const FormComponent = () => {
       console.log(err, "err");
     }
   };
-  console.log(errors);
+
+  console.log("errors:", errors);
 
   return (
     <FormWrap>
@@ -126,29 +130,39 @@ export const FormComponent = () => {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Input
           type="text"
+          $error={!!errors?.firstName}
           placeholder="First name"
-          {...register("firstName", { required: true, minLength: 1 })}
+          {...register("firstName", {
+            required: true,
+            validate: (value) => value.length > 1,
+          })}
         />
         <Input
           type="text"
+          $error={!!errors?.lastName}
           placeholder="Last name"
-          {...register("lastName", { required: true, minLength: 1 })}
+          {...register("lastName", {
+            required: true,
+            validate: (value) => value.length > 1,
+          })}
         />
         <Input
           type="text"
+          $error={!!errors?.email}
           placeholder="Email"
           {...register("email", {
             required: true,
-            pattern: { value: /^\S+@\S+$/i, message: "confirm Email format" },
+            validate: (value: string) => /^\S+@\S+$/i.test(value),
           })}
         />
         <Input
           type="tel"
+          $error={!!errors?.mobile}
           placeholder="Mobile number"
           {...register("mobile", {
             required: true,
-            minLength: 11,
-            maxLength: 11,
+            validate: (value) =>
+              typeof value === "number" && value.toString().length === 11,
           })}
         />
         <Select {...register("title", { required: true })}>
