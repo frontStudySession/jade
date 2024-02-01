@@ -59,6 +59,7 @@ const Input = styled.input<{ $error?: boolean }>`
   border: ${(props) =>
     props.$error ? "1px solid rgb(191, 22, 80)" : "1px solid white"};
   border-left: ${(props) => props.$error && "10px solid rgb(236, 89, 144)"};
+  background-color: ${(props) => props.$error && "rgb(251, 236, 242)"};
 
   &[type="submit"] {
     background: #ec5990;
