@@ -81,7 +81,6 @@ const Input = styled.input<{ $error?: boolean }>`
     width: fit-content;
   }
 `;
-
 const DeveloperWrap = styled.div`
   display: flex;
   justify-content: flex-start;
