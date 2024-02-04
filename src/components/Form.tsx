@@ -25,6 +25,7 @@ const TitleWrap = styled.div`
   gap: 10px;
   justify-content: center;
   align-items: center;
+  padding: 0 30px;
 `;
 
 const Title = styled.h1`
@@ -32,12 +33,13 @@ const Title = styled.h1`
   color: white;
   text-align: center;
   padding-bottom: 10px;
+  flex: 0.5;
 `;
 
 const Line = styled.div`
   height: 0;
-  width: 180px;
   border: 0.5px solid white;
+  flex: 1;
 `;
 
 const Form = styled.form`
@@ -48,18 +50,18 @@ const Form = styled.form`
   gap: 20px;
 `;
 
-const Input = styled.input<{ $error?: boolean }>`
+const Input = styled.input.attrs<{ $error?: boolean }>((props) => {
+  return {
+    className: props.$error ? 'is-error' : undefined,
+  };
+})`
   display: block;
   box-sizing: border-box;
   width: 100%;
   border-radius: 4px;
   padding: 10px 15px;
   font-size: 14px;
-
-  border: ${(props) =>
-    props.$error ? '1px solid rgb(191, 22, 80)' : '1px solid white'};
-  border-left: ${(props) => props.$error && '10px solid rgb(236, 89, 144)'};
-  background-color: ${(props) => props.$error && 'rgb(251, 236, 242)'};
+  border: 1px solid white;
 
   &[type='submit'] {
     background: #ec5990;
@@ -74,13 +76,21 @@ const Input = styled.input<{ $error?: boolean }>`
 
   &[type='submit']:hover {
     background: #bf1650;
+    cursor: pointer;
   }
 
   &[type='radio'] {
     margin: 0;
     width: fit-content;
   }
+
+  &.is-error {
+    border: 1px solid rgb(191, 22, 80);
+    border-left: 10px solid rgb(236, 89, 144);
+    background-color: rgb(251, 236, 242);
+  }
 `;
+
 const DeveloperWrap = styled.div`
   display: flex;
   justify-content: flex-start;
@@ -118,7 +128,7 @@ export const FormComponent = () => {
     }
   };
 
-  console.log('errors:', errors);
+  const radioRegister = register('developer', { required: true });
 
   return (
     <FormWrap>
@@ -152,11 +162,15 @@ export const FormComponent = () => {
           placeholder="Email"
           {...register('email', {
             required: true,
-            validate: (value: string) => /^\S+@\S+$/i.test(value),
+            validate: (value: string) =>
+              /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(
+                value
+              ),
           })}
         />
         <Input
           type="tel"
+          inputMode="numeric"
           $error={!!errors?.mobile}
           placeholder="Mobile number"
           {...register('mobile', {
@@ -176,7 +190,7 @@ export const FormComponent = () => {
             Yes
             <Input
               id="yes"
-              {...register('developer', { required: true })}
+              {...radioRegister}
               type="radio"
               value="Yes"
             />
@@ -185,7 +199,7 @@ export const FormComponent = () => {
             No
             <Input
               id="no"
-              {...register('developer', { required: true })}
+              {...radioRegister}
               type="radio"
               value="No"
             />
