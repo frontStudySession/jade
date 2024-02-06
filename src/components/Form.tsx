@@ -1,5 +1,7 @@
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import styled from 'styled-components';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 //과제
 //1. 폼에  파일 인풋 Controller로 추가 (accept=".txt")
@@ -54,7 +56,7 @@ const Form = styled.form`
   flex-direction: column;
   justify-content: center;
   padding: 0 50px;
-  gap: 20px;
+  gap: 10px;
 `;
 
 const Input = styled.input.attrs<{ $error?: boolean }>((props) => {
@@ -98,6 +100,12 @@ const Input = styled.input.attrs<{ $error?: boolean }>((props) => {
   }
 `;
 
+const ErrorMessage = styled.p`
+  font-size: 14px;
+  margin: 0;
+  color: rgb(236, 89, 144);
+`;
+
 const DeveloperWrap = styled.div`
   display: flex;
   justify-content: flex-start;
@@ -121,12 +129,26 @@ const Select = styled.select`
   font-size: 14px;
 `;
 
+const schema = z.object({
+  firstName: z.string().min(1, { message: 'Required at least 1 character' }),
+  lastName: z.string().min(1, { message: 'Required at least 1 character' }),
+  email: z
+    .string()
+    .regex(
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+      { message: 'only email format allowed' }
+    ),
+  mobile: z.custom<number>((val) => String(val).length === 11),
+});
+
 export const FormComponent = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Inputs>();
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
+  });
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     try {
       console.log(data);
@@ -136,6 +158,8 @@ export const FormComponent = () => {
   };
 
   const radioRegister = register('developer', { required: true });
+
+  console.log(errors);
 
   return (
     <FormWrap>
@@ -151,30 +175,27 @@ export const FormComponent = () => {
           placeholder="First name"
           {...register('firstName', {
             required: true,
-            validate: (value) => value.length > 1,
           })}
         />
+        <ErrorMessage>{errors.firstName?.message}</ErrorMessage>
         <Input
           type="text"
           $error={!!errors?.lastName}
           placeholder="Last name"
           {...register('lastName', {
             required: true,
-            validate: (value) => value.length > 1,
           })}
         />
+        <ErrorMessage>{errors.lastName?.message}</ErrorMessage>
         <Input
           type="text"
           $error={!!errors?.email}
           placeholder="Email"
           {...register('email', {
             required: true,
-            validate: (value: string) =>
-              /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(
-                value
-              ),
           })}
         />
+        <ErrorMessage>{errors.email?.message}</ErrorMessage>
         <Input
           type="tel"
           inputMode="numeric"
@@ -182,10 +203,9 @@ export const FormComponent = () => {
           placeholder="Mobile number"
           {...register('mobile', {
             required: true,
-            validate: (value) =>
-              typeof value === 'number' && value.toString().length === 11,
           })}
         />
+        <ErrorMessage>{errors.mobile?.message}</ErrorMessage>
         <Select {...register('title', { required: true })}>
           <option value="Mr">Mr</option>
           <option value="Mrs">Mrs</option>
