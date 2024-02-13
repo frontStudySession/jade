@@ -2,15 +2,14 @@ import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import styled from 'styled-components';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Preview } from './Preview';
 
 //과제
 //1. 폼에  파일 인풋 Controller로 추가 (accept=".txt")
 //https://react-hook-form.com/advanced-usage?#ControlledmixedwithUncontrolledComponents
-//2. txt 파일에 작성된 내용을 미리보기로 보여주기(해당 내용은 html이 아닌 text로 처리)
-//3. 기존 validation 대신 joi vs yup vs zod 중 하나를 사용해서 resolver 추가
-//https://react-hook-form.com/get-started#SchemaValidation
 
-type Inputs = {
+export type Inputs = {
+  test: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -145,10 +144,12 @@ export const FormComponent = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
   });
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     try {
       console.log(data);
@@ -169,6 +170,18 @@ export const FormComponent = () => {
         <Line />
       </TitleWrap>
       <Form onSubmit={handleSubmit(onSubmit)}>
+        <Controller
+          name="test"
+          control={control}
+          render={({ field }) => (
+            <Input
+              type="text"
+              placeholder="test"
+              value={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
         <Input
           type="text"
           $error={!!errors?.firstName}
@@ -237,6 +250,7 @@ export const FormComponent = () => {
           value="SUBMIT"
         />
       </Form>
+      <Preview control={control} />
     </FormWrap>
   );
 };
