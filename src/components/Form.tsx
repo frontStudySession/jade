@@ -4,12 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Preview } from './Preview';
 
-//과제
-//1. 폼에  파일 인풋 Controller로 추가 (accept=".txt")
-//https://react-hook-form.com/advanced-usage?#ControlledmixedwithUncontrolledComponents
-
 export type Inputs = {
-  test: string;
+  file: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -58,6 +54,30 @@ const Form = styled.form`
   gap: 10px;
 `;
 
+const Label = styled.label`
+  font-size: 14px;
+  color: white;
+  border-radius: 4px;
+  padding: 5px 10px;
+  background: #ec5990;
+  cursor: pointer;
+`;
+
+const FileWrap = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background: white;
+  padding: 5px;
+  border-radius: 4px;
+  gap: 10px;
+
+  & > span {
+    color: grey;
+    overflow: hidden;
+  }
+`;
+
 const Input = styled.input.attrs<{ $error?: boolean }>((props) => {
   return {
     className: props.$error ? 'is-error' : undefined,
@@ -90,6 +110,12 @@ const Input = styled.input.attrs<{ $error?: boolean }>((props) => {
   &[type='radio'] {
     margin: 0;
     width: fit-content;
+  }
+
+  &[type='file'] {
+    display: none;
+    width: 0;
+    height: 0;
   }
 
   &.is-error {
@@ -160,8 +186,6 @@ export const FormComponent = () => {
 
   const radioRegister = register('developer', { required: true });
 
-  console.log(errors);
-
   return (
     <FormWrap>
       <TitleWrap>
@@ -171,15 +195,22 @@ export const FormComponent = () => {
       </TitleWrap>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Controller
-          name="test"
+          name="file"
           control={control}
           render={({ field }) => (
-            <Input
-              type="text"
-              placeholder="test"
-              value={field.value}
-              onChange={field.onChange}
-            />
+            <FileWrap>
+              <span>{field.value}</span>
+              <Label htmlFor="file">upload file</Label>
+              <Input
+                id="file"
+                name="file"
+                type="file"
+                accept=".txt"
+                placeholder="test"
+                value={field.value}
+                onChange={field.onChange}
+              />
+            </FileWrap>
           )}
         />
         <Input

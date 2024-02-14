@@ -16,15 +16,15 @@ const PreviewTitle = styled.h2`
 `;
 
 const PreviewText = styled.p`
-  font-size: 14px;
-  margin: 0;
+  font-size: 15px;
+  margin: 0 0 10;
   color: white;
 `;
 
 export const Preview = ({ control }: { control: Control<Inputs> }) => {
   const testWatch = useWatch({
     control,
-    name: 'test',
+    name: 'file',
   });
 
   const firstNameWatch = useWatch({
