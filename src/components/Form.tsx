@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Preview } from './Preview';
+import React, { useState } from 'react';
 
 export type Inputs = {
   file: string;
@@ -167,6 +168,7 @@ const schema = z.object({
 });
 
 export const FormComponent = () => {
+  const [fileData, setFileData] = useState('');
   const {
     register,
     handleSubmit,
@@ -186,6 +188,19 @@ export const FormComponent = () => {
 
   const radioRegister = register('developer', { required: true });
 
+  const fileHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === 'text/plain') {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFileData(reader.result as string);
+      };
+      reader.readAsText(file);
+    } else {
+      setFileData('');
+    }
+  };
+
   return (
     <FormWrap>
       <TitleWrap>
@@ -194,25 +209,6 @@ export const FormComponent = () => {
         <Line />
       </TitleWrap>
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <Controller
-          name="file"
-          control={control}
-          render={({ field }) => (
-            <FileWrap>
-              <span>{field.value}</span>
-              <Label htmlFor="file">upload file</Label>
-              <Input
-                id="file"
-                name="file"
-                type="file"
-                accept=".txt"
-                placeholder="test"
-                value={field.value}
-                onChange={field.onChange}
-              />
-            </FileWrap>
-          )}
-        />
         <Input
           type="text"
           $error={!!errors?.firstName}
@@ -276,12 +272,37 @@ export const FormComponent = () => {
             />
           </label>
         </DeveloperWrap>
+        <Controller
+          name="file"
+          control={control}
+          render={({ field }) => (
+            <FileWrap>
+              <span>{field.value}</span>
+              <Label htmlFor="file">upload file</Label>
+              <Input
+                id="file"
+                name="file"
+                type="file"
+                accept=".txt"
+                placeholder="test"
+                defaultValue={field.value}
+                onChange={(e) => {
+                  field.onChange(e);
+                  fileHandler(e);
+                }}
+              />
+            </FileWrap>
+          )}
+        />
         <Input
           type="submit"
           value="SUBMIT"
         />
       </Form>
-      <Preview control={control} />
+      <Preview
+        title="File Preview"
+        content={fileData}
+      />
     </FormWrap>
   );
 };

@@ -1,5 +1,3 @@
-import { Control, useWatch } from 'react-hook-form';
-import { Inputs } from './Form';
 import styled from 'styled-components';
 
 const PreviewWrap = styled.div`
@@ -15,46 +13,23 @@ const PreviewTitle = styled.h2`
   color: white;
 `;
 
-const PreviewText = styled.p`
+const PreviewText = styled.pre`
   font-size: 15px;
   margin: 0 0 10;
   color: white;
 `;
 
-export const Preview = ({ control }: { control: Control<Inputs> }) => {
-  const testWatch = useWatch({
-    control,
-    name: 'file',
-  });
-
-  const firstNameWatch = useWatch({
-    control,
-    name: 'firstName',
-  });
-
-  const lastNameWatch = useWatch({
-    control,
-    name: 'lastName',
-  });
-
-  const emailWatch = useWatch({
-    control,
-    name: 'email',
-  });
-
-  const mobileWatch = useWatch({
-    control,
-    name: 'mobile',
-  });
-
+export const Preview = ({
+  title,
+  content,
+}: {
+  title: string;
+  content: string;
+}) => {
   return (
     <PreviewWrap>
-      <PreviewTitle>Previw Text</PreviewTitle>
-      <PreviewText>test:{testWatch}</PreviewText>
-      <PreviewText>fistName: {firstNameWatch}</PreviewText>
-      <PreviewText>lastName: {lastNameWatch}</PreviewText>
-      <PreviewText>email: {emailWatch}</PreviewText>
-      <PreviewText>mobile: {mobileWatch}</PreviewText>
+      <PreviewTitle>{title}</PreviewTitle>
+      <PreviewText>{content}</PreviewText>
     </PreviewWrap>
   );
 };
