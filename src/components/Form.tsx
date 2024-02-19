@@ -1,11 +1,16 @@
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import styled from 'styled-components';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Preview } from './Preview';
+import React, { useState } from 'react';
 
-type Inputs = {
+export type Inputs = {
+  file: File | 'no file';
   firstName: string;
   lastName: string;
   email: string;
-  mobile: number;
+  mobile: string;
   title: string;
   developer: string;
 };
@@ -47,7 +52,31 @@ const Form = styled.form`
   flex-direction: column;
   justify-content: center;
   padding: 0 50px;
-  gap: 20px;
+  gap: 10px;
+`;
+
+const Label = styled.label`
+  font-size: 14px;
+  color: white;
+  border-radius: 4px;
+  padding: 5px 10px;
+  background: #ec5990;
+  cursor: pointer;
+`;
+
+const FileWrap = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background: white;
+  padding: 5px;
+  border-radius: 4px;
+  gap: 10px;
+
+  & > span {
+    color: grey;
+    overflow: hidden;
+  }
 `;
 
 const Input = styled.input.attrs<{ $error?: boolean }>((props) => {
@@ -84,11 +113,23 @@ const Input = styled.input.attrs<{ $error?: boolean }>((props) => {
     width: fit-content;
   }
 
+  &[type='file'] {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   &.is-error {
     border: 1px solid rgb(191, 22, 80);
     border-left: 10px solid rgb(236, 89, 144);
     background-color: rgb(251, 236, 242);
   }
+`;
+
+const ErrorMessage = styled.p`
+  font-size: 14px;
+  margin: 0;
+  color: rgb(236, 89, 144);
 `;
 
 const DeveloperWrap = styled.div`
@@ -114,12 +155,36 @@ const Select = styled.select`
   font-size: 14px;
 `;
 
+const schema = z.object({
+  firstName: z.string().min(1, { message: 'Required at least 1 character' }),
+  lastName: z.string().min(1, { message: 'Required at least 1 character' }),
+  email: z.string().email(),
+  mobile: z
+    .string()
+    .regex(/^[0-9]{11}$/)
+    .min(11),
+});
+
 export const FormComponent = () => {
+  const [fileData, setFileData] = useState('');
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
-  } = useForm<Inputs>();
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      mobile: '',
+      title: '',
+      developer: '',
+      file: 'no file',
+    },
+  });
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     try {
       console.log(data);
@@ -129,6 +194,19 @@ export const FormComponent = () => {
   };
 
   const radioRegister = register('developer', { required: true });
+
+  const fileHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === 'text/plain') {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFileData(reader.result as string);
+      };
+      reader.readAsText(file);
+    } else {
+      setFileData('');
+    }
+  };
 
   return (
     <FormWrap>
@@ -144,30 +222,27 @@ export const FormComponent = () => {
           placeholder="First name"
           {...register('firstName', {
             required: true,
-            validate: (value) => value.length > 1,
           })}
         />
+        <ErrorMessage>{errors.firstName?.message}</ErrorMessage>
         <Input
           type="text"
           $error={!!errors?.lastName}
           placeholder="Last name"
           {...register('lastName', {
             required: true,
-            validate: (value) => value.length > 1,
           })}
         />
+        <ErrorMessage>{errors.lastName?.message}</ErrorMessage>
         <Input
           type="text"
           $error={!!errors?.email}
           placeholder="Email"
           {...register('email', {
             required: true,
-            validate: (value: string) =>
-              /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(
-                value
-              ),
           })}
         />
+        <ErrorMessage>{errors.email?.message}</ErrorMessage>
         <Input
           type="tel"
           inputMode="numeric"
@@ -175,10 +250,9 @@ export const FormComponent = () => {
           placeholder="Mobile number"
           {...register('mobile', {
             required: true,
-            validate: (value) =>
-              typeof value === 'number' && value.toString().length === 11,
           })}
         />
+        <ErrorMessage>{errors.mobile?.message}</ErrorMessage>
         <Select {...register('title', { required: true })}>
           <option value="Mr">Mr</option>
           <option value="Mrs">Mrs</option>
@@ -205,11 +279,36 @@ export const FormComponent = () => {
             />
           </label>
         </DeveloperWrap>
+        <Controller
+          name="file"
+          control={control}
+          render={({ field }) => (
+            <FileWrap>
+              <span>{String(field.value)}</span>
+              <Label htmlFor="file">upload file</Label>
+              <Input
+                id="file"
+                name="file"
+                type="file"
+                accept=".txt"
+                placeholder="test"
+                onChange={(e) => {
+                  field.onChange(e);
+                  fileHandler(e);
+                }}
+              />
+            </FileWrap>
+          )}
+        />
         <Input
           type="submit"
           value="SUBMIT"
         />
       </Form>
+      <Preview
+        title="File Preview"
+        content={fileData}
+      />
     </FormWrap>
   );
 };
