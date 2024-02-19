@@ -6,11 +6,11 @@ import { Preview } from './Preview';
 import React, { useState } from 'react';
 
 export type Inputs = {
-  file: string;
+  file: File | 'no file';
   firstName: string;
   lastName: string;
   email: string;
-  mobile: number;
+  mobile: string;
   title: string;
   developer: string;
 };
@@ -158,13 +158,11 @@ const Select = styled.select`
 const schema = z.object({
   firstName: z.string().min(1, { message: 'Required at least 1 character' }),
   lastName: z.string().min(1, { message: 'Required at least 1 character' }),
-  email: z
+  email: z.string().email(),
+  mobile: z
     .string()
-    .regex(
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
-      { message: 'only email format allowed' }
-    ),
-  mobile: z.custom<number>((val) => String(val).length === 11),
+    .regex(/^[0-9]{11}$/)
+    .min(11),
 });
 
 export const FormComponent = () => {
@@ -176,6 +174,15 @@ export const FormComponent = () => {
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      mobile: '',
+      title: '',
+      developer: '',
+      file: 'no file',
+    },
   });
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
@@ -277,7 +284,7 @@ export const FormComponent = () => {
           control={control}
           render={({ field }) => (
             <FileWrap>
-              <span>{field.value}</span>
+              <span>{String(field.value)}</span>
               <Label htmlFor="file">upload file</Label>
               <Input
                 id="file"
@@ -285,7 +292,6 @@ export const FormComponent = () => {
                 type="file"
                 accept=".txt"
                 placeholder="test"
-                defaultValue={field.value}
                 onChange={(e) => {
                   field.onChange(e);
                   fileHandler(e);
