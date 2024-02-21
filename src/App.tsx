@@ -1,20 +1,20 @@
 import React from 'react';
-import { FormComponent } from './components/Form';
-import styled from 'styled-components';
-
-const Container = styled.div`
-  display: flex;
-  width:100%
-  height:100v;
-  justify-content: center;
-  align-items: center;
-`;
+import { Router } from './routes/Router';
+import { Route } from './routes/Route';
+import { About, Main } from './app/pages';
 
 function App() {
   return (
-    <Container>
-      <FormComponent />
-    </Container>
+    <Router>
+      <Route
+        path="/"
+        component={<Main />}
+      />
+      <Route
+        path="/about"
+        component={<About />}
+      />
+    </Router>
   );
 }
 
