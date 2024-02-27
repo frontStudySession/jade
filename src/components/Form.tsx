@@ -2,7 +2,7 @@ import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import styled from 'styled-components';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Preview } from './Preview';
+import { Preview } from '@app/components/Preview';
 import React, { useState } from 'react';
 
 export type Inputs = {
