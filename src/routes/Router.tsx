@@ -1,24 +1,40 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 
-interface LocationContextProps {
-  location: {
-    pathName: string;
-  };
-  setLocation: React.Dispatch<React.SetStateAction<{ pathName: string }>>;
+interface RouterContextInterface {
+  pathName: string;
+  changeRouterPath: (path: string) => void;
 }
 
-export const LocationContext = createContext<LocationContextProps>(null!);
+export const RouterContext = createContext<RouterContextInterface>({
+  pathName: '',
+  changeRouterPath: () => null,
+});
 
-interface MyRouterProps {
+interface MyRouterPropsInterface {
   children: React.ReactNode;
 }
 
-export const Router = ({ children }: MyRouterProps) => {
-  const [location, setLocation] = useState({ pathName: '/' });
+export const Router = ({ children }: MyRouterPropsInterface) => {
+  const [pathName, setPathName] = useState(window.location.pathname);
+
+  const changeRouterPath = (path: string) => {
+    setPathName(path);
+    window.history.pushState(null, '', path);
+  };
+
+  useEffect(() => {
+    window.onpopstate = () => {
+      setPathName(window.location.pathname);
+    };
+
+    return () => {
+      window.onpopstate = null;
+    };
+  }, []);
 
   return (
-    <LocationContext.Provider value={{ location, setLocation }}>
+    <RouterContext.Provider value={{ pathName, changeRouterPath }}>
       {children}
-    </LocationContext.Provider>
+    </RouterContext.Provider>
   );
 };

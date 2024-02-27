@@ -1,20 +1,22 @@
-import { useRouter } from '@app/hooks/useRouter';
+import { RouterContext } from '@app/routes/Router';
+import { useContext } from 'react';
 
 interface MyLinkProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   to: string;
 }
 
 export const Link = ({ children, to }: MyLinkProps) => {
-  const { push } = useRouter();
+  const { changeRouterPath } = useContext(RouterContext);
   return (
-    <button
+    <a
+      href={to}
       onClick={(e) => {
         e.preventDefault();
-        push(to);
+        changeRouterPath(to);
       }}
     >
       {children}
-    </button>
+    </a>
   );
 };
