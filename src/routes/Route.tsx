@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { LocationContext } from './Router';
+import { LocationContext } from '@app/routes/Router';
 
 interface MyRouteProps {
   path: string;
